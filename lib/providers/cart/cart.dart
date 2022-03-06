@@ -1,20 +1,52 @@
 import 'package:flutter/foundation.dart';
 
 class Cart with ChangeNotifier {
-  final Map<String, CartItem> _items = {
-    'p1': CartItem(id: 'c1', title: 'product one', qty: 1, price: 2.3),
-  };
+  final Map<String, CartItem> _items = {};
 
   Map<String, CartItem> get items {
     return {..._items};
   }
 
-  void addItemToCart(String productId, String title, double price, int qty) {
-    if(_items.containsKey(productId)) {
+  int get cartCount {
+    return _items.length;
+  }
 
+  num get totalSum {
+    num totalPrice = 0;
+
+    _items.forEach((key, value) {
+      totalPrice += value.qty * value.price;
+    });
+
+    return totalPrice;
+  }
+
+  void addItemToCart(String productId, String title, double price) {
+    if (_items.containsKey(productId)) {
+      _items.update(
+        productId,
+        (oldVal) => CartItem(
+          id: oldVal.id,
+          title: oldVal.title,
+          qty: oldVal.qty + 1,
+          price: oldVal.price,
+        ),
+      );
     } else {
-      _items[productId] = CartItem(id: DateTime.now().toString(), qty: qty, title: title, price: price);
+      _items[productId] = CartItem(
+        id: DateTime.now().toString(),
+        qty: 1,
+        title: title,
+        price: price,
+      );
     }
+
+    notifyListeners();
+  }
+
+  void removeCartItem(String id) {
+    _items.removeWhere((prodId, _) => prodId == id);
+    notifyListeners();
   }
 }
 

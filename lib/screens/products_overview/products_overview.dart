@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopify/widgets/badge/badge.dart';
 import '../../providers/products/products.dart';
 
-import '../../providers/product/product.dart';
+import '../../providers/cart/cart.dart';
 import '../../widgets/product_item/product_item.dart';
+import '../cart/cart.dart' as cartScreen;
 
 enum FilterOptions {
   favorite,
@@ -23,7 +25,8 @@ class _ProductsOverviewState extends State<ProductsOverview> {
   @override
   Widget build(BuildContext context) {
     final productsData = context.watch<Product>();
-    final loadedProducts = _isFavoriteShow ? productsData.favProducts : productsData.products;
+    final loadedProducts =
+        _isFavoriteShow ? productsData.favProducts : productsData.products;
 
     return Scaffold(
       appBar: AppBar(
@@ -34,10 +37,10 @@ class _ProductsOverviewState extends State<ProductsOverview> {
           PopupMenuButton(
             onSelected: (FilterOptions value) {
               setState(() {
-                if(value == FilterOptions.all) {
+                if (value == FilterOptions.all) {
                   _isFavoriteShow = false;
                 }
-                if(value == FilterOptions.favorite) {
+                if (value == FilterOptions.favorite) {
                   _isFavoriteShow = true;
                 }
               });
@@ -54,15 +57,31 @@ class _ProductsOverviewState extends State<ProductsOverview> {
             ],
             icon: const Icon(Icons.more_vert),
           ),
+          Consumer<Cart>(
+            builder: (_, cart, child) => Badge(
+              child: child as Widget,
+              value: cart.cartCount.toString(),
+              color: Colors.red,
+            ),
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () {
+                Navigator.of(context).pushNamed(cartScreen.Cart.route);
+              },
+            ),
+          ),
         ],
       ),
       body: GridView.builder(
         itemBuilder: (context, index) {
           final product = loadedProducts[index];
 
-          return ChangeNotifierProvider.value( // problem is here cause changenotifierprovider is immediately remove when dispose call. fix: 
+          return ChangeNotifierProvider.value(
+            // problem is here cause changenotifierprovider is immediately remove when dispose call. fix:
             value: product,
-            child: ProductItem(key: ValueKey(index),),
+            child: ProductItem(
+              key: ValueKey(index),
+            ),
           );
         },
         itemCount: loadedProducts.length,

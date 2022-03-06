@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/cart/cart.dart';
 
 import '../../screens/product_details/product_details.dart';
 import '../../providers/product/product.dart';
@@ -25,7 +26,8 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final product = Provider.of<ProductModel>(context, listen: false);
-    print('had run product item build method');
+    final cart = context.read<Cart>();
+
     return GestureDetector(
       onTap: () => productTapHandler(
         context,
@@ -62,7 +64,9 @@ class ProductItem extends StatelessWidget {
                 Icons.shopping_cart,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              onPressed: () {},
+              onPressed: () {
+                cart.addItemToCart(product.id, product.title, product.price);
+              },
             ),
             backgroundColor: Colors.black54,
           ),
