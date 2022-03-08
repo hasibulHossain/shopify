@@ -67,6 +67,7 @@ class ProductItem extends StatelessWidget {
               ),
               onPressed: () {
                 cart.addItemToCart(product.id, product.title, product.price);
+                ScaffoldMessenger.of(context).hideCurrentSnackBar(reason: SnackBarClosedReason.hide);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: const Text('Undo last action'),
                   duration: const Duration(milliseconds: 2500),
