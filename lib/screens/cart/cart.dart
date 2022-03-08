@@ -17,55 +17,58 @@ class Cart extends StatelessWidget {
     final orderState = context.read<Orders>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('cart'),
-      ),
-      body: Column(
-        children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Total'),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Chip(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    label: Text(
-                      '\$ ${cart.totalSum}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+        appBar: AppBar(
+          title: const Text('cart'),
+        ),
+        body: Column(
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total'),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Chip(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      label: Text(
+                        '\$ ${cart.totalSum}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: cart.cartCount,
-              itemBuilder: (ctx, i) => CartItem(
-                prodId: cart.items.keys.toList()[i],
-                qty: cart.items.values.elementAt(i).qty,
-                title: cart.items.values.elementAt(i).title,
-                unitPrice: cart.items.values.elementAt(i).price,
+            const SizedBox(
+              height: 10,
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: cart.cartCount,
+                itemBuilder: (ctx, i) => CartItem(
+                  prodId: cart.items.keys.toList()[i],
+                  qty: cart.items.values.elementAt(i).qty,
+                  title: cart.items.values.elementAt(i).title,
+                  unitPrice: cart.items.values.elementAt(i).price,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(child: Container(child: const Text('Order now'), alignment: Alignment.centerRight,), onPressed: () {
-        orderState.placeOrder(cart.items.values.toList(), cart.totalSum.toDouble());
-        cart.emptyCart();
-      },)
-    );
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.celebration_outlined),
+          onPressed: () {
+            orderState.placeOrder(
+                cart.items.values.toList(), cart.totalSum.toDouble());
+            cart.emptyCart();
+          },
+        ));
   }
 }

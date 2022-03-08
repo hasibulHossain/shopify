@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shopify/widgets/badge/badge.dart';
+
+import '../../widgets/badge/badge.dart';
 import '../../providers/products/products.dart';
 
 import '../../providers/cart/cart.dart';
 import '../../widgets/product_item/product_item.dart';
 import '../cart/cart.dart' as cartScreen;
 import '../order/order.dart';
+import '../all_products/all_products.dart';
 
 enum FilterOptions {
   favorite,
@@ -142,6 +144,7 @@ class MainDrawer extends StatelessWidget {
         const SizedBox(height: 20),
         _drawerItem('Home', Icons.restaurant, context, '/'),
         _drawerItem('Order', Icons.filter_alt, context, OrderScreen.route),
+        _drawerItem('All products', Icons.align_vertical_center_sharp, context, AllProducts.route),
       ],
     );
   }
