@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 
 import 'providers/cart/cart.dart';
 import 'providers/products/products.dart';
+import 'providers/orders/orders.dart' show Orders;
 
 import './screens/products_overview/products_overview.dart';
 import './screens/product_details/product_details.dart';
-import './screens/cart/cart.dart' as CartScreen;
+import './screens/cart/cart.dart' as cartScreen;
+import './screens/order/order.dart';
 
 void main() {
   runApp(
@@ -17,6 +19,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => Cart(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => Orders(),
         ),
       ],
       child: const MyApp(),
@@ -49,10 +54,12 @@ class MyApp extends StatelessWidget {
         ),
         primarySwatch: Colors.teal,
       ),
-      home: const ProductsOverview(),
+      // home: const ProductsOverview(),
       routes: {
+        '/': (context) => const ProductsOverview(),
         ProductDetails.route: (context) => const ProductDetails(),
-        CartScreen.Cart.route: (context) => const CartScreen.Cart(),
+        cartScreen.Cart.route: (context) => const cartScreen.Cart(),
+        OrderScreen.route: (context) => const OrderScreen(),
       },
     );
   }

@@ -6,6 +6,7 @@ import '../../providers/products/products.dart';
 import '../../providers/cart/cart.dart';
 import '../../widgets/product_item/product_item.dart';
 import '../cart/cart.dart' as cartScreen;
+import '../order/order.dart';
 
 enum FilterOptions {
   favorite,
@@ -29,6 +30,7 @@ class _ProductsOverviewState extends State<ProductsOverview> {
         _isFavoriteShow ? productsData.favProducts : productsData.products;
 
     return Scaffold(
+      drawer: const Drawer(child: MainDrawer()),
       appBar: AppBar(
         title: const Text(
           'Shopify',
@@ -92,6 +94,55 @@ class _ProductsOverviewState extends State<ProductsOverview> {
           mainAxisSpacing: 10,
         ),
       ),
+    );
+  }
+}
+
+
+class MainDrawer extends StatelessWidget {
+  const MainDrawer({Key? key}) : super(key: key);
+
+  void routeHandler(String route, BuildContext context) {
+    Navigator.of(context).pushNamed(route);
+  }
+
+  Widget _drawerItem(String title, IconData icon, BuildContext context, String route) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        size: 30,
+      ),
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.headline6,
+      ),
+      onTap: () => routeHandler(route, context),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Container(
+          height: 120,
+          width: double.infinity,
+          padding: EdgeInsets.all(20),
+          alignment: Alignment.centerLeft,
+          color: Theme.of(context).colorScheme.secondary,
+          child: Text(
+            'Shopify',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 30,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        _drawerItem('Home', Icons.restaurant, context, '/'),
+        _drawerItem('Order', Icons.filter_alt, context, OrderScreen.route),
+      ],
     );
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/cart/cart.dart' as cartProvider show Cart;
+import '../../providers/cart/cart.dart' as cartProvider;
+import '../../providers/orders/orders.dart';
 
 import '../../widgets/cart_item/cart_item.dart';
 
@@ -13,6 +14,7 @@ class Cart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<cartProvider.Cart>();
+    final orderState = context.read<Orders>();
 
     return Scaffold(
       appBar: AppBar(
@@ -60,6 +62,10 @@ class Cart extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(child: Container(child: const Text('Order now'), alignment: Alignment.centerRight,), onPressed: () {
+        orderState.placeOrder(cart.items.values.toList(), cart.totalSum.toDouble());
+        cart.emptyCart();
+      },)
     );
   }
 }

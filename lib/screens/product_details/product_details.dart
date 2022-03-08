@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/products/products.dart';
+
 class ProductDetails extends StatelessWidget {
   const ProductDetails({Key? key}) : super(key: key);
 
@@ -19,8 +20,19 @@ class ProductDetails extends StatelessWidget {
           product.title,
         ),
       ),
-      body: Container(
-        child: Text('product details $productId'),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              child: Image.network(
+                product.imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Text(product.title),
+            Text('\$ ${product.price}'),
+          ],
+        ),
       ),
     );
   }

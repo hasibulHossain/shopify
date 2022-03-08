@@ -42,7 +42,8 @@ class ProductItem extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           footer: GridTileBar(
-            leading: Consumer<ProductModel>( // If we want to change state on a certain portion of the widget without running build method for state change. To achieve this we can wrap that portion with consumer, now only this portion of widget will update without build full widget.
+            leading: Consumer<ProductModel>(
+              // If we want to change state on a certain portion of the widget without running build method for state change. To achieve this we can wrap that portion with consumer, now only this portion of widget will update without build full widget.
               builder: (_, product, child) => IconButton(
                 icon: Icon(
                   product.isFavorite
@@ -66,6 +67,16 @@ class ProductItem extends StatelessWidget {
               ),
               onPressed: () {
                 cart.addItemToCart(product.id, product.title, product.price);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text('Undo last action'),
+                  duration: const Duration(milliseconds: 2500),
+                  action: SnackBarAction(
+                    label: 'UNDO',
+                    onPressed: () {
+                      cart.undoCart(product.id);
+                    },
+                  ),
+                ));
               },
             ),
             backgroundColor: Colors.black54,
