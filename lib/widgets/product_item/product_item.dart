@@ -69,6 +69,8 @@ class ProductItem extends StatelessWidget {
                 cart.addItemToCart(product.id, product.title, product.price);
                 ScaffoldMessenger.of(context).hideCurrentSnackBar(reason: SnackBarClosedReason.hide);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  dismissDirection: DismissDirection.startToEnd,
                   content: const Text('Undo last action'),
                   duration: const Duration(milliseconds: 2500),
                   action: SnackBarAction(
