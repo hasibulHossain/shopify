@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/products/products.dart' as prodState;
+
+import '../../screens/edit_product_screen/edit_product_screen.dart';
 class Product extends StatelessWidget {
   final String id;
   final String title;
@@ -27,11 +31,15 @@ class Product extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(EditProduct.route, arguments: id);
+                  },
                   icon: const Icon(Icons.edit),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<prodState.Product>().deleteProduct(id);
+                  },
                   icon: const Icon(Icons.delete),
                 ),
               ],

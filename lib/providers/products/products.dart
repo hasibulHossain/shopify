@@ -41,7 +41,7 @@ class Product with ChangeNotifier {
       isFavorite: false,
     ),
   ];
-  
+
   List<ProductModel> get products {
     return [..._products];
   }
@@ -54,6 +54,35 @@ class Product with ChangeNotifier {
     return _products.firstWhere((product) => product.id == id);
   }
 
+  void addProduct(String title, String description, String imageUrl, double price) {
+    _products.insert(
+      0,
+      ProductModel(
+          id: DateTime.now().toString(),
+          title: title,
+          description: description,
+          imageUrl: imageUrl,
+          isFavorite: false,
+          price: price),
+    );
+    notifyListeners();
+  }
+
+  void updateProduct(String id, String title, double price, String description, String imageUrl) {
+    final index = _products.indexWhere((product) => product.id == id);
+
+    if(index == -1) {
+      print('product not found');
+    } else {
+      _products[index] = ProductModel(id: id, title: title, description: description, imageUrl: imageUrl, isFavorite: _products[index].isFavorite, price: price);
+      notifyListeners();
+    }
+  }
+
+  void deleteProduct(String id) {
+    _products.removeWhere((element) => element.id == id);
+    notifyListeners();
+  }
   // void addProduct(value) {
   //   _products.add(value);
   //   notifyListeners()
