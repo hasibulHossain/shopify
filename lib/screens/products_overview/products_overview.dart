@@ -105,6 +105,7 @@ class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
 
   void routeHandler(String route, BuildContext context) {
+    Navigator.of(context).pop();
     Navigator.of(context).pushNamed(route);
   }
 

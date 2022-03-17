@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 import '../product/product.dart';
 
@@ -54,27 +56,51 @@ class Product with ChangeNotifier {
     return _products.firstWhere((product) => product.id == id);
   }
 
-  void addProduct(String title, String description, String imageUrl, double price) {
+  void addProduct(
+      String title, String description, String imageUrl, double price) async {
+    const url =
+        'https://shop-app-b048d-default-rtdb.asia-southeast1.firebasedatabase.app/products.json';
+
+    final body = jsonEncode({
+      'title': title,
+      'description': description,
+      'imageUrl': imageUrl,
+      'price': price,
+      'isFavorite': false,
+    });
+
+    final res = await Dio().post(url, data: body);
+
+    print('response ${res.data}');
+
     _products.insert(
       0,
       ProductModel(
-          id: DateTime.now().toString(),
-          title: title,
-          description: description,
-          imageUrl: imageUrl,
-          isFavorite: false,
-          price: price),
+        id: res.data['name'],
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+        isFavorite: false,
+        price: price,
+      ),
     );
     notifyListeners();
   }
 
-  void updateProduct(String id, String title, double price, String description, String imageUrl) {
+  void updateProduct(String id, String title, double price, String description,
+      String imageUrl) {
     final index = _products.indexWhere((product) => product.id == id);
 
-    if(index == -1) {
+    if (index == -1) {
       print('product not found');
     } else {
-      _products[index] = ProductModel(id: id, title: title, description: description, imageUrl: imageUrl, isFavorite: _products[index].isFavorite, price: price);
+      _products[index] = ProductModel(
+          id: id,
+          title: title,
+          description: description,
+          imageUrl: imageUrl,
+          isFavorite: _products[index].isFavorite,
+          price: price);
       notifyListeners();
     }
   }
