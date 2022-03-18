@@ -17,6 +17,7 @@ class _EditProductState extends State<EditProduct> {
   final _descriptionFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
   final _form = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   String? _productId;
   String _title = '';
@@ -38,7 +39,7 @@ class _EditProductState extends State<EditProduct> {
     //  we use didChangeDependencies insted of initstate because of Modalroute. ModalRoute not work in initState. initState is too early to access modalRoute. and also didchangedependencies run before build method.
     final productId = ModalRoute.of(context)?.settings.arguments;
 
-    if(productId != null) {
+    if (productId != null) {
       final product = context.read<Product>().findProduct(productId as String);
       _productId = product.id;
       _title = product.title;
@@ -51,41 +52,72 @@ class _EditProductState extends State<EditProduct> {
     super.didChangeDependencies();
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     final isValid = _form.currentState!.validate();
 
-    if(!isValid) return;
+    if (!isValid) return;
 
-    _form.currentState!.save();
+    _form.currentState!
+        .save(); // this will call the every TextField onSaved method.
 
     final productState = context.read<Product>();
 
-    if(_productId == null) {
-      productState.addProduct(_title, _description, _imageUrl, _price);
-    } else {
-      productState.updateProduct(_productId as String, _title, _price, _description, _imageUrl);
-    }
+    if (_productId == null) {
+      setState(() {
+        _isLoading = true;
+      });
 
-    Navigator.of(context).pop();
+      try {
+        await productState.addProduct(_title, _description, _imageUrl, _price);
+      } catch(err) {
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Error Ocured'),
+            content: const Text('Product not uploaded.'),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Okay'),
+              ),
+            ],
+          ),
+        );
+        
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
+      }
+    } else {
+      productState.updateProduct(
+          _productId as String, _title, _price, _description, _imageUrl);
+    }
   }
 
   String? isInputValid(String fieldName, String? inputVal) {
     switch (fieldName) {
       case 'title':
-        if(inputVal == null || inputVal.isEmpty) return 'Please input product name.';
+        if (inputVal == null || inputVal.isEmpty)
+          return 'Please input product name.';
         return null;
-      
+
       case 'price':
-        if(inputVal == null || inputVal.isEmpty) return 'Product price should not be not 0.';
-        if(double.parse(inputVal) <= 0) return 'haha your product price is 0';
+        if (inputVal == null || inputVal.isEmpty)
+          return 'Product price should not be not 0.';
+        if (double.parse(inputVal) <= 0) return 'haha your product price is 0';
         return null;
 
       case 'description':
-        if(inputVal == null || inputVal.isEmpty) return 'Please add a description.';
+        if (inputVal == null || inputVal.isEmpty)
+          return 'Please add a description.';
         return null;
 
       case 'imageUrl':
-        if(inputVal == null || inputVal.isEmpty) return 'Image Url needed.';
+        if (inputVal == null || inputVal.isEmpty) return 'Image Url needed.';
         return null;
 
       default:
@@ -98,93 +130,109 @@ class _EditProductState extends State<EditProduct> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit product'),
-        actions: [ 
+        actions: [
           IconButton(onPressed: _saveForm, icon: const Icon(Icons.save)),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Form(
-          key: _form,
-          child: ListView(
-            children: [
-              TextFormField(
-                initialValue: _title,
-                decoration: const InputDecoration(labelText: 'Title',),
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) {
-                  // this code will change current focus input to price input;
-                  FocusScope.of(context).requestFocus(_priceFocusNode);
-                },
-                onSaved: (newValue) => newValue != null ? _title = newValue : _title = '',
-                validator: (value) => isInputValid('title', value),
-              ),
-              TextFormField(
-                initialValue: _price.toString(),
-                decoration: const InputDecoration(labelText: 'Price'),
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.number,
-                onFieldSubmitted: (_) {
-                  FocusScope.of(context).requestFocus(_descriptionFocusNode);
-                },
-                focusNode: _priceFocusNode,
-                validator: (value) {
-                  return isInputValid('price', value);
-                },
-                onSaved: (newValue) => newValue != null ? _price = double.parse(newValue) : _price = 0,
-              ),
-              TextFormField(
-                initialValue: _description,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                keyboardType: TextInputType.multiline,
-                focusNode: _descriptionFocusNode,
-                validator: (value) => isInputValid('description', value),
-                onSaved: (newValue) => newValue != null ? _description = newValue : _description = '',
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    margin: const EdgeInsets.only(
-                      top: 10,
-                      right: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 1,
-                        color: Colors.grey,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(10),
+              child: Form(
+                key: _form,
+                child: ListView(
+                  children: [
+                    TextFormField(
+                      initialValue: _title,
+                      decoration: const InputDecoration(
+                        labelText: 'Title',
                       ),
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        // this code will change current focus input to price input;
+                        FocusScope.of(context).requestFocus(_priceFocusNode);
+                      },
+                      onSaved: (newValue) =>
+                          newValue != null ? _title = newValue : _title = '',
+                      validator: (value) => isInputValid('title', value),
                     ),
-                    child: _imageUrlController.text.isEmpty
-                        ? const Text('Image Url')
-                        : FittedBox(
-                            child: Image.network(
-                              _imageUrlController.text,
-                              fit: BoxFit.cover,
+                    TextFormField(
+                      initialValue: _price.toString(),
+                      decoration: const InputDecoration(labelText: 'Price'),
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.number,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context)
+                            .requestFocus(_descriptionFocusNode);
+                      },
+                      focusNode: _priceFocusNode,
+                      validator: (value) {
+                        return isInputValid('price', value);
+                      },
+                      onSaved: (newValue) => newValue != null
+                          ? _price = double.parse(newValue)
+                          : _price = 0,
+                    ),
+                    TextFormField(
+                      initialValue: _description,
+                      decoration:
+                          const InputDecoration(labelText: 'Description'),
+                      maxLines: 3,
+                      keyboardType: TextInputType.multiline,
+                      focusNode: _descriptionFocusNode,
+                      validator: (value) => isInputValid('description', value),
+                      onSaved: (newValue) => newValue != null
+                          ? _description = newValue
+                          : _description = '',
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          margin: const EdgeInsets.only(
+                            top: 10,
+                            right: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1,
+                              color: Colors.grey,
                             ),
                           ),
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Image url',
-                      ),
-                      keyboardType: TextInputType.url,
-                      textInputAction: TextInputAction.done,
-                      controller: _imageUrlController,
-                      validator: (value) => isInputValid('imageUrl', value),
-                      onSaved: (newValue) => newValue != null ? _imageUrl = newValue : _imageUrl = '',
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
+                          child: _imageUrlController.text.isEmpty
+                              ? const Text('Image Url')
+                              : FittedBox(
+                                  child: Image.network(
+                                    _imageUrlController.text,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Image url',
+                            ),
+                            keyboardType: TextInputType.url,
+                            textInputAction: TextInputAction.done,
+                            controller: _imageUrlController,
+                            validator: (value) =>
+                                isInputValid('imageUrl', value),
+                            onSaved: (newValue) => newValue != null
+                                ? _imageUrl = newValue
+                                : _imageUrl = '',
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }

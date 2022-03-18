@@ -24,6 +24,32 @@ class ProductsOverview extends StatefulWidget {
 
 class _ProductsOverviewState extends State<ProductsOverview> {
   bool _isFavoriteShow = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    Future<void> test() async {
+      await context.read<Product>().fetchAllProducts();
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+    ;
+
+    test();
+
+    // context.read<Product>().fetchAllProducts().then((value) {
+    //   setState(() {
+    //     _isLoading = false;
+    //   });
+    // });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,30 +102,33 @@ class _ProductsOverviewState extends State<ProductsOverview> {
           ),
         ],
       ),
-      body: GridView.builder(
-        itemBuilder: (context, index) {
-          final product = loadedProducts[index];
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : GridView.builder(
+              itemBuilder: (context, index) {
+                final product = loadedProducts[index];
 
-          return ChangeNotifierProvider.value(
-            // problem is here cause changenotifierprovider is immediately remove when dispose call. fix:
-            value: product,
-            child: ProductItem(
-              key: ValueKey(index),
+                return ChangeNotifierProvider.value(
+                  // problem is here cause changenotifierprovider is immediately remove when dispose call. fix:
+                  value: product,
+                  child: ProductItem(
+                    key: ValueKey(index),
+                  ),
+                );
+              },
+              itemCount: loadedProducts.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 3 / 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
             ),
-          );
-        },
-        itemCount: loadedProducts.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-      ),
     );
   }
 }
-
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
@@ -109,7 +138,8 @@ class MainDrawer extends StatelessWidget {
     Navigator.of(context).pushNamed(route);
   }
 
-  Widget _drawerItem(String title, IconData icon, BuildContext context, String route) {
+  Widget _drawerItem(
+      String title, IconData icon, BuildContext context, String route) {
     return ListTile(
       leading: Icon(
         icon,
@@ -145,7 +175,8 @@ class MainDrawer extends StatelessWidget {
         const SizedBox(height: 20),
         _drawerItem('Home', Icons.restaurant, context, '/'),
         _drawerItem('Order', Icons.filter_alt, context, OrderScreen.route),
-        _drawerItem('All products', Icons.align_vertical_center_sharp, context, AllProducts.route),
+        _drawerItem('All products', Icons.align_vertical_center_sharp, context,
+            AllProducts.route),
       ],
     );
   }

@@ -1,51 +1,72 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import '../../utils/constants.dart';
 
 import '../product/product.dart';
 
 class Product with ChangeNotifier {
-  final List<ProductModel> _products = [
-    ProductModel(
-      id: 'p1',
-      title: 'Red Shirt',
-      description: 'A red shirt - it is pretty red!',
-      price: 29.99,
-      imageUrl:
-          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-      isFavorite: false,
-    ),
-    ProductModel(
-      id: 'p2',
-      title: 'Trousers',
-      description: 'A nice pair of trousers.',
-      price: 59.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
-      isFavorite: false,
-    ),
-    ProductModel(
-      id: 'p3',
-      title: 'Yellow Scarf',
-      description: 'Warm and cozy - exactly what you need for the winter.',
-      price: 19.99,
-      imageUrl:
-          'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
-      isFavorite: false,
-    ),
-    ProductModel(
-      id: 'p4',
-      title: 'A Pan',
-      description: 'Prepare any meal you want.',
-      price: 49.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-      isFavorite: false,
-    ),
+  List<ProductModel> _products = [
+    // ProductModel(
+    //   id: 'p1',
+    //   title: 'Red Shirt',
+    //   description: 'A red shirt - it is pretty red!',
+    //   price: 29.99,
+    //   imageUrl:
+    //       'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+    //   isFavorite: false,
+    // ),
+    // ProductModel(
+    //   id: 'p2',
+    //   title: 'Trousers',
+    //   description: 'A nice pair of trousers.',
+    //   price: 59.99,
+    //   imageUrl:
+    //       'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
+    //   isFavorite: false,
+    // ),
+    // ProductModel(
+    //   id: 'p3',
+    //   title: 'Yellow Scarf',
+    //   description: 'Warm and cozy - exactly what you need for the winter.',
+    //   price: 19.99,
+    //   imageUrl:
+    //       'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
+    //   isFavorite: false,
+    // ),
+    // ProductModel(
+    //   id: 'p4',
+    //   title: 'A Pan',
+    //   description: 'Prepare any meal you want.',
+    //   price: 49.99,
+    //   imageUrl:
+    //       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+    //   isFavorite: false,
+    // ),
   ];
 
   List<ProductModel> get products {
     return [..._products];
+  }
+
+  Future<void> fetchAllProducts() async {
+    try {
+      final response = await Dio().get(PRODUCTS_URI);
+      final products = response.data as Map<String, dynamic>;
+      final List<ProductModel> loadedProducts = [];
+
+      products.forEach((productId, product) {
+        loadedProducts.add(ProductModel(id: productId, title: product['title'], description: product['description'], imageUrl: product['imageUrl'], isFavorite: product['isFavorite'], price: product['price']));
+      });
+
+      _products = loadedProducts;
+
+      notifyListeners();
+      
+      print(response.data);
+    } catch (err) {
+
+    }
   }
 
   List<ProductModel> get favProducts {
@@ -56,10 +77,8 @@ class Product with ChangeNotifier {
     return _products.firstWhere((product) => product.id == id);
   }
 
-  void addProduct(
-      String title, String description, String imageUrl, double price) async {
-    const url =
-        'https://shop-app-b048d-default-rtdb.asia-southeast1.firebasedatabase.app/products.json';
+  Future<void> addProduct(String title, String description, String imageUrl, double price) async {
+    const url = PRODUCTS_URI;
 
     final body = jsonEncode({
       'title': title,
@@ -69,22 +88,30 @@ class Product with ChangeNotifier {
       'isFavorite': false,
     });
 
-    final res = await Dio().post(url, data: body);
+    try {
+      final res = await Dio().post(url, data: body);
 
-    print('response ${res.data}');
+      print('response ${res.data}');
 
-    _products.insert(
-      0,
-      ProductModel(
-        id: res.data['name'],
-        title: title,
-        description: description,
-        imageUrl: imageUrl,
-        isFavorite: false,
-        price: price,
-      ),
-    );
-    notifyListeners();
+      _products.insert(
+        0,
+        ProductModel(
+          id: res.data['name'],
+          title: title,
+          description: description,
+          imageUrl: imageUrl,
+          isFavorite: false,
+          price: price,
+        ),
+      );
+      notifyListeners();
+
+      return Future.value();
+
+    } catch(err) {
+      rethrow;
+    }
+
   }
 
   void updateProduct(String id, String title, double price, String description,
