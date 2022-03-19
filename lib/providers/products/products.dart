@@ -52,8 +52,13 @@ class Product with ChangeNotifier {
   Future<void> fetchAllProducts() async {
     try {
       final response = await Dio().get(PRODUCTS_URI);
-      final products = response.data as Map<String, dynamic>;
+      final products = response.data as Map<String, dynamic>?;
       final List<ProductModel> loadedProducts = [];
+
+      if(products == null) {
+        _products = [];
+        return;
+      }
 
       products.forEach((productId, product) {
         print(product['price'].runtimeType);

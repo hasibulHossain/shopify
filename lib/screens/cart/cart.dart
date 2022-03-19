@@ -62,11 +62,12 @@ class Cart extends StatelessWidget {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.celebration_outlined),
-          onPressed: () {
-            orderState.placeOrder(
+        floatingActionButton: FloatingActionButton.extended(
+          label: Text('ORDER'),
+          onPressed: cart.cartCount == 0 ? null : () async {
+            await orderState.placeOrder(
                 cart.items.values.toList(), cart.totalSum.toDouble());
+
             cart.emptyCart();
           },
         ));

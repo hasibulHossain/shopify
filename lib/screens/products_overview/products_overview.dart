@@ -32,16 +32,12 @@ class _ProductsOverviewState extends State<ProductsOverview> {
       _isLoading = true;
     });
 
-    Future<void> test() async {
+    () async {
       await context.read<Product>().fetchAllProducts();
       setState(() {
         _isLoading = false;
       });
-    }
-
-    ;
-
-    test();
+    }();
 
     // context.read<Product>().fetchAllProducts().then((value) {
     //   setState(() {
