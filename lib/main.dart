@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'providers/cart/cart.dart';
 import 'providers/products/products.dart';
 import 'providers/orders/orders.dart' show Orders;
+import 'providers/auth/auth.dart';
 
 import './screens/products_overview/products_overview.dart';
 import './screens/product_details/product_details.dart';
@@ -11,11 +12,15 @@ import './screens/cart/cart.dart' as cartScreen;
 import './screens/order/order.dart';
 import './screens/all_products/all_products.dart';
 import './screens/edit_product_screen/edit_product_screen.dart';
+import './screens/auth/auth.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => Auth(),
+        ),
         ChangeNotifierProvider(
           create: (_) => Product(),
         ),
@@ -56,9 +61,9 @@ class MyApp extends StatelessWidget {
         ),
         primarySwatch: Colors.teal,
       ),
-      // home: const ProductsOverview(),
+      home: AuthScreen(),
       routes: {
-        '/': (context) => const ProductsOverview(),
+        ProductsOverview.route: (context) => const ProductsOverview(),
         ProductDetails.route: (context) => const ProductDetails(),
         cartScreen.Cart.route: (context) => const cartScreen.Cart(),
         OrderScreen.route: (context) => const OrderScreen(),
