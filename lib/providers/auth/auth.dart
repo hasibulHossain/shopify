@@ -12,4 +12,9 @@ class Auth with ChangeNotifier {
     final response = await Dio().post(SIGNUP_URI, data: {'email': email, 'password': password});
     print(response.data);
   }
+
+  Future<void> signIn(String email, String password) async {
+    final response = await Dio().post(SIGNIN_URI, data: {'email': email, 'password': password});
+    print(response.data);
+  }
 }
