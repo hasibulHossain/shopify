@@ -10,6 +10,10 @@ class AllProducts extends StatelessWidget {
 
   static const route = '/all-products';
 
+  Future<void> refreshProduct(BuildContext context) async {
+    await Provider.of<ProductState.Product>(context, listen: false).fetchAllProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     final productState = context.watch<ProductState.Product>();
@@ -26,21 +30,24 @@ class AllProducts extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        children: [
-          ...productState.products.map(
-            (item) => Column(
-              children: [
-                Product(
-                  id: item.id,
-                  title: item.title,
-                  imgUrl: item.imageUrl,
-                ),
-                const Divider(),
-              ],
+      body: RefreshIndicator(
+        onRefresh: () => refreshProduct(context),
+        child: ListView(
+          children: [
+            ...productState.products.map(
+              (item) => Column(
+                children: [
+                  Product(
+                    id: item.id,
+                    title: item.title,
+                    imgUrl: item.imageUrl,
+                  ),
+                  const Divider(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

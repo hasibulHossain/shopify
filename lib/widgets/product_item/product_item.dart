@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/cart/cart.dart';
 
 import '../../screens/product_details/product_details.dart';
@@ -51,8 +52,12 @@ class ProductItem extends StatelessWidget {
                       : Icons.favorite_border_rounded,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                onPressed: () {
-                  product.toggleFavorite();
+                onPressed: () async {
+                  try {
+                    await product.toggleFavorite();
+                  } catch(err) {
+                    print('running from catch');
+                  }
                 },
               ),
             ),
@@ -82,7 +87,7 @@ class ProductItem extends StatelessWidget {
                 ));
               },
             ),
-            backgroundColor: Colors.black54,
+            backgroundColor: Colors.black87,
           ),
         ),
       ),

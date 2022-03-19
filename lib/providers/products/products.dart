@@ -56,16 +56,23 @@ class Product with ChangeNotifier {
       final List<ProductModel> loadedProducts = [];
 
       products.forEach((productId, product) {
-        loadedProducts.add(ProductModel(id: productId, title: product['title'], description: product['description'], imageUrl: product['imageUrl'], isFavorite: product['isFavorite'], price: product['price']));
+        print(product['price'].runtimeType);
+        loadedProducts.add(ProductModel(
+            id: productId,
+            title: product['title'],
+            description: product['description'],
+            imageUrl: product['imageUrl'],
+            isFavorite: product['isFavorite'],
+            price: product['price']));
       });
 
       _products = loadedProducts;
 
       notifyListeners();
-      
+
       print(response.data);
     } catch (err) {
-
+      print(err);
     }
   }
 
@@ -77,7 +84,8 @@ class Product with ChangeNotifier {
     return _products.firstWhere((product) => product.id == id);
   }
 
-  Future<void> addProduct(String title, String description, String imageUrl, double price) async {
+  Future<void> addProduct(
+      String title, String description, String imageUrl, double price) async {
     const url = PRODUCTS_URI;
 
     final body = jsonEncode({
@@ -107,37 +115,55 @@ class Product with ChangeNotifier {
       notifyListeners();
 
       return Future.value();
-
-    } catch(err) {
+    } catch (err) {
       rethrow;
     }
-
   }
 
-  void updateProduct(String id, String title, double price, String description,
-      String imageUrl) {
+  Future<void> updateProduct(String id, String title, double price,
+      String description, String imageUrl) async {
     final index = _products.indexWhere((product) => product.id == id);
 
-    if (index == -1) {
-      print('product not found');
-    } else {
-      _products[index] = ProductModel(
+    if (index != -1) {
+      try {
+        await Dio().patch('$BASE_URL/products/$id.json', data: {
+          'title': title,
+          'description': description,
+          'imageUrl': imageUrl,
+          'price': price
+        });
+        _products[index] = ProductModel(
           id: id,
           title: title,
           description: description,
           imageUrl: imageUrl,
           isFavorite: _products[index].isFavorite,
-          price: price);
-      notifyListeners();
+          price: price,
+        );
+        notifyListeners();
+      } catch (err) {
+        rethrow;
+      }
+    } else {
+      print('product not found');
+      throw 'Product not found';
     }
   }
 
   void deleteProduct(String id) {
-    _products.removeWhere((element) => element.id == id);
+    final foundProdIndex = _products.indexWhere((element) => id == element.id);
+    if(foundProdIndex == -1) return;
+
+    ProductModel? foundProd = _products[foundProdIndex];
+
+    _products.removeAt(foundProdIndex);
     notifyListeners();
+
+    Dio().delete('$BASE_URL/products/$id.json').then((value) {
+      foundProd = null;
+    }).catchError((err) {
+      _products.insert(foundProdIndex, foundProd!);
+      notifyListeners();
+    });
   }
-  // void addProduct(value) {
-  //   _products.add(value);
-  //   notifyListeners()
-  // }
 }

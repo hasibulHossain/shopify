@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
+import '../../utils/constants.dart';
 
 class ProductModel with ChangeNotifier {
   final String id;
@@ -17,8 +19,16 @@ class ProductModel with ChangeNotifier {
     required this.price,
   });
 
-  void toggleFavorite() {
+  Future<void> toggleFavorite() async {
+    final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
+
+    try {
+      await Dio().patch('$BASE_URL/products/$id.json', data: {'isFavorite': isFavorite});
+    } catch(err) {
+      print(err);
+      rethrow;
+    }
   }
 }

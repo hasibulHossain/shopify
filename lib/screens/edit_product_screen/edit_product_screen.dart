@@ -62,11 +62,11 @@ class _EditProductState extends State<EditProduct> {
 
     final productState = context.read<Product>();
 
-    if (_productId == null) {
-      setState(() {
-        _isLoading = true;
-      });
+    setState(() {
+      _isLoading = true;
+    });
 
+    if (_productId == null) {
       try {
         await productState.addProduct(_title, _description, _imageUrl, _price);
       } catch(err) {
@@ -85,17 +85,28 @@ class _EditProductState extends State<EditProduct> {
             ],
           ),
         );
-        
+
       } finally {
         setState(() {
           _isLoading = false;
         });
-        Navigator.of(context).pop();
       }
+
     } else {
-      productState.updateProduct(
-          _productId as String, _title, _price, _description, _imageUrl);
+      try {
+        await productState.updateProduct(
+            _productId as String, _title, _price, _description, _imageUrl);
+      } catch(err) {
+        print(err);
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      
     }
+
+    Navigator.of(context).pop();
   }
 
   String? isInputValid(String fieldName, String? inputVal) {
