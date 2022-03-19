@@ -34,16 +34,18 @@ class OrderScreen extends StatelessWidget {
             );
           }
 
-          return ListView.builder(
-            itemBuilder: (context, index) => orderItemWidget.OrderItem(
+          return Consumer<Orders>(
+            builder: (context, orderState, child) => ListView.builder(
+              itemBuilder: (context, index) => orderItemWidget.OrderItem(
                 key: ValueKey(orderState.orders[index].id),
                 title: orderState.orders[index].amount.toString(),
                 total: orderState.orders[index].amount,
                 dateTime: orderState.orders[index].timeStump,
-                products: orderState.orders[index].products),
-            itemCount: orderState.orders.length,
+                products: orderState.orders[index].products,
+              ),
+              itemCount: orderState.orders.length,
+            ),
           );
-          
         },
       ),
     );
