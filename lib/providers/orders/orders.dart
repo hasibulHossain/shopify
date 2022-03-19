@@ -38,9 +38,9 @@ class Orders with ChangeNotifier {
       _orders = loadedOrders;
 
       notifyListeners();
-
     } catch(err) {
       print('fetch order err $err');
+      rethrow;
     }
   }
 
