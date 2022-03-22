@@ -7,6 +7,8 @@ import 'package:shopify/providers/auth/auth.dart';
 enum AuthMode { Signup, Login }
 
 class AuthScreen extends StatelessWidget {
+  const AuthScreen({Key? key}): super(key: key);
+
   static const route = '/auth';
 
   @override

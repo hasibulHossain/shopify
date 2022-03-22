@@ -4,8 +4,15 @@ import 'package:dio/dio.dart';
 import '../../utils/constants.dart';
 
 import '../product/product.dart';
+import '../auth/auth.dart';
 
 class Product with ChangeNotifier {
+  String? _authToken;
+
+  set setToken(String token) {
+    _authToken = token;
+  }
+
   List<ProductModel> _products = [
     // ProductModel(
     //   id: 'p1',
@@ -49,9 +56,14 @@ class Product with ChangeNotifier {
     return [..._products];
   }
 
+  void update(Auth auth) {
+
+  }
+
   Future<void> fetchAllProducts() async {
+    if(_authToken == null) return;
     try {
-      final response = await Dio().get(PRODUCTS_URI);
+      final response = await Dio().get('$PRODUCTS_URI?auth=$_authToken');
       final products = response.data as Map<String, dynamic>?;
       final List<ProductModel> loadedProducts = [];
 
