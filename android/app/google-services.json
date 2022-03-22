@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "125048453737",
+    "firebase_url": "https://shop-app-b048d-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "shop-app-b048d",
+    "storage_bucket": "shop-app-b048d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125048453737:android:369dddf4b26963f46140f8",
+        "android_client_info": {
+          "package_name": "com.example.shopify"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "125048453737-87o3rthi06emou2v6k5n9mk9qp33m8op.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpYdb6GFaz--1sgb8sry39Bd7K70VwtuQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "125048453737-87o3rthi06emou2v6k5n9mk9qp33m8op.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "125048453737-bhieb6osidumccaocq18osfap03d5k8n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.shopify"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
