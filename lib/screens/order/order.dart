@@ -5,15 +5,34 @@ import '../../providers/orders/orders.dart';
 
 import '../../widgets/order_item/order_item.dart' as orderItemWidget;
 
-class OrderScreen extends StatelessWidget {
+class OrderScreen extends StatefulWidget {
   const OrderScreen({Key? key}) : super(key: key);
 
   static const route = '/orders';
 
   @override
+  State<OrderScreen> createState() => _OrderScreenState();
+}
+
+class _OrderScreenState extends State<OrderScreen> {
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    () async {
+      await context.read<Orders>().fetchOrders();
+      setState(() {
+        _isLoading = false;
+      });
+    }();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final orderState = context.read<Orders>();
-    print('orders length ${orderState.orders.length}');
+    print('running from order build [order.dart]');
 
     return Scaffold(
       appBar: AppBar(
@@ -22,6 +41,8 @@ class OrderScreen extends StatelessWidget {
       body: FutureBuilder(
         future: context.read<Orders>().fetchOrders(),
         builder: (context, dataSnapshot) {
+          print('from futurebuilder');
+          
           if (dataSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),

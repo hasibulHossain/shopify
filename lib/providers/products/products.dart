@@ -7,11 +7,9 @@ import '../product/product.dart';
 import '../auth/auth.dart';
 
 class Product with ChangeNotifier {
-  String? _authToken;
+  Product(this._authToken);
 
-  set setToken(String token) {
-    _authToken = token;
-  }
+  String? _authToken;
 
   List<ProductModel> _products = [
     // ProductModel(
@@ -57,11 +55,10 @@ class Product with ChangeNotifier {
   }
 
   void update(Auth auth) {
-
+    _authToken = auth.token;
   }
 
   Future<void> fetchAllProducts() async {
-    if(_authToken == null) return;
     try {
       final response = await Dio().get('$PRODUCTS_URI?auth=$_authToken');
       final products = response.data as Map<String, dynamic>?;
@@ -73,7 +70,6 @@ class Product with ChangeNotifier {
       }
 
       products.forEach((productId, product) {
-        print(product['price'].runtimeType);
         loadedProducts.add(ProductModel(
             id: productId,
             title: product['title'],
@@ -86,8 +82,6 @@ class Product with ChangeNotifier {
       _products = loadedProducts;
 
       notifyListeners();
-
-      print(response.data);
     } catch (err) {
       print(err);
     }
@@ -115,8 +109,6 @@ class Product with ChangeNotifier {
 
     try {
       final res = await Dio().post(url, data: body);
-
-      print('response ${res.data}');
 
       _products.insert(
         0,
@@ -162,7 +154,6 @@ class Product with ChangeNotifier {
         rethrow;
       }
     } else {
-      print('product not found');
       throw 'Product not found';
     }
   }

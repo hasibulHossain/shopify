@@ -38,8 +38,6 @@ class Auth with ChangeNotifier {
 
     setCredential(response.data['idToken'], response.data['localId'],
         response.data['expiresIn']);
-
-    print(response.data);
   }
 
   Future<void> signIn(String email, String password) async {
@@ -51,6 +49,7 @@ class Auth with ChangeNotifier {
       });
 
       setCredential(response.data['idToken'], response.data['localId'], '3600');
+      print('auth response [auth.dart] ${response.data}');
     } catch (err) {
       print(err);
       rethrow;

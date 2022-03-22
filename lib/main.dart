@@ -21,17 +21,24 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => Auth(),
         ),
+
         ChangeNotifierProxyProvider<Auth, Product>(
-          create: (context) => Product(),
-          update: (_, auth, previousProduct) => previousProduct == null ? Product() : previousProduct
-            ..setToken = auth.token as String,
-          lazy: true,
+          create: (context) =>
+              Product(Provider.of<Auth>(context, listen: false).token),
+          update: (_, auth, previousProduct) =>
+              previousProduct == null ? Product(auth.token) : previousProduct
+                ..update(auth),
         ),
+
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: (context) => Orders(Provider.of<Auth>(context, listen: false).token),
+          update: (_, auth, previousOrders) =>
+              previousOrders == null ? Orders(auth.token) : previousOrders
+                ..update(auth),
+        ),
+
         ChangeNotifierProvider(
           create: (_) => Cart(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => Orders(),
         ),
       ],
       child: const MyApp(),
@@ -66,7 +73,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.teal,
         ),
         home: auth.isAuth ? const ProductsOverview() : const AuthScreen(),
-        routes: { 
+        routes: {
           ProductDetails.route: (context) => const ProductDetails(),
           cartScreen.Cart.route: (context) => const cartScreen.Cart(),
           OrderScreen.route: (context) => const OrderScreen(),
