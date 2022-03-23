@@ -21,6 +21,10 @@ class Auth with ChangeNotifier {
     return null;
   }
 
+  String? get userId {
+    return _userId;
+  }
+
   void setCredential(String token, String userId, String expiryTimeInSec) {
     int expiryDateInSeconds = int.parse(expiryTimeInSec);
 

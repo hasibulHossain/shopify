@@ -6,8 +6,9 @@ import 'package:shopify/utils/constants.dart';
 import '../cart/cart.dart' show CartItem;
 
 class Orders with ChangeNotifier {
-  Orders(this._accessToken);
+  Orders(Auth auth) : _accessToken = auth.token, _userId = auth.userId;
   String? _accessToken;
+  String? _userId;
 
   List<OrderItem> _orders = [];
 
@@ -22,14 +23,10 @@ class Orders with ChangeNotifier {
   Future<void> fetchOrders() async {
     if (_accessToken == null) return;
 
-    print('fetchOrders has ran');
-
     try {
-      final response = await Dio().get('$ORDERS_URI?auth=$_accessToken');
+      final response = await Dio().get('$BASE_URL/orders/$_userId.json?auth=$_accessToken');
       final orders = response.data as Map<String, dynamic>?;
       final List<OrderItem> loadedOrders = [];
-
-      print('orders $orders');
 
       if (orders == null) {
         _orders = loadedOrders;
@@ -37,7 +34,6 @@ class Orders with ChangeNotifier {
       }
 
       orders.forEach((orderId, order) {
-        print('order: $order');
         final cartItems = (order['products'] as List<dynamic>)
             .map(
               (item) => CartItem(
@@ -61,7 +57,6 @@ class Orders with ChangeNotifier {
 
       notifyListeners();
     } catch (err) {
-      print('fetch order err $err');
       rethrow;
     }
   }
@@ -71,14 +66,15 @@ class Orders with ChangeNotifier {
 
     try {
       final response =
-          await Dio().post('$ORDERS_URI?auth=$_accessToken', data: {
+          await Dio().post('$BASE_URL/orders/$_userId.json?auth=$_accessToken', data: {
         'amount': total,
         'products': cartItems
             .map((cartProd) => {
                   'id': cartProd.id,
                   'title': cartProd.title,
                   'qty': cartProd.qty,
-                  'price': cartProd.price
+                  'price': cartProd.price,
+                  'createdBy': _userId,
                 })
             .toList(),
         'timeStump': timeStump.toIso8601String()

@@ -19,13 +19,13 @@ class ProductModel with ChangeNotifier {
     required this.price,
   });
 
-  Future<void> toggleFavorite() async {
+  Future<void> toggleFavorite(String accessToken) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
 
     try {
-      await Dio().patch('$BASE_URL/products/$id.json', data: {'isFavorite': isFavorite});
+      await Dio().patch('$BASE_URL/products/$id.json?auth=$accessToken', data: {'isFavorite': isFavorite});
     } catch(err) {
       print(err);
       rethrow;

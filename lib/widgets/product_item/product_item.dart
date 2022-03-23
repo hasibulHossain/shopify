@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopify/providers/auth/auth.dart';
 
 import '../../providers/cart/cart.dart';
 
@@ -54,9 +55,9 @@ class ProductItem extends StatelessWidget {
                 ),
                 onPressed: () async {
                   try {
-                    await product.toggleFavorite();
+                    await product.toggleFavorite(context.read<Auth>().token as String);
                   } catch(err) {
-                    print('running from catch');
+                    print('running from catch [product_item.dart]');
                   }
                 },
               ),

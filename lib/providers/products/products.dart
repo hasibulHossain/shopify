@@ -107,6 +107,7 @@ class Product with ChangeNotifier {
       'imageUrl': imageUrl,
       'price': price,
       'isFavorite': false,
+      'creatorId': _userId,
     });
 
     try {

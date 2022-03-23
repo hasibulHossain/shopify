@@ -24,16 +24,16 @@ void main() {
 
         ChangeNotifierProxyProvider<Auth, Product>(
           create: (context) =>
-              Product(Provider.of<Auth>(context, listen: false).token),
+              Product(Provider.of<Auth>(context, listen: false)),
           update: (_, auth, previousProduct) =>
-              previousProduct == null ? Product(auth.token) : previousProduct
+              previousProduct == null ? Product(auth) : previousProduct
                 ..update(auth),
         ),
 
         ChangeNotifierProxyProvider<Auth, Orders>(
-          create: (context) => Orders(Provider.of<Auth>(context, listen: false).token),
+          create: (context) => Orders(Provider.of<Auth>(context, listen: false)),
           update: (_, auth, previousOrders) =>
-              previousOrders == null ? Orders(auth.token) : previousOrders
+              previousOrders == null ? Orders(auth) : previousOrders
                 ..update(auth),
         ),
 
