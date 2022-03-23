@@ -10,14 +10,13 @@ class AllProducts extends StatelessWidget {
 
   static const route = '/all-products';
 
-  Future<void> refreshProduct(BuildContext context) async {
-    await Provider.of<ProductState.Product>(context, listen: false).fetchAllProducts();
+  Future<void> _refreshProduct(BuildContext context) async {
+    await Provider.of<ProductState.Product>(context, listen: false)
+        .fetchAllProducts(isFilteredByUser: true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final productState = context.watch<ProductState.Product>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('All products'),
@@ -30,24 +29,34 @@ class AllProducts extends StatelessWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () => refreshProduct(context),
-        child: ListView(
-          children: [
-            ...productState.products.map(
-              (item) => Column(
-                children: [
-                  Product(
-                    id: item.id,
-                    title: item.title,
-                    imgUrl: item.imageUrl,
+      body: FutureBuilder(
+        future: _refreshProduct(context),
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () => _refreshProduct(context),
+                    child: Consumer<ProductState.Product>(
+                      builder: (context, productState, child) => ListView(
+                        children: [
+                          ...productState.products.map(
+                            (item) => Column(
+                              children: [
+                                Product(
+                                  id: item.id,
+                                  title: item.title,
+                                  imgUrl: item.imageUrl,
+                                ),
+                                const Divider(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const Divider(),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

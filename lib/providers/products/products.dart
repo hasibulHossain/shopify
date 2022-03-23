@@ -7,9 +7,10 @@ import '../product/product.dart';
 import '../auth/auth.dart';
 
 class Product with ChangeNotifier {
-  Product(this._authToken);
+  Product(Auth auth) : _authToken = auth.token, _userId = auth.userId;
 
   String? _authToken;
+  String? _userId;
 
   List<ProductModel> _products = [
     // ProductModel(
@@ -58,9 +59,10 @@ class Product with ChangeNotifier {
     _authToken = auth.token;
   }
 
-  Future<void> fetchAllProducts() async {
+  Future<void> fetchAllProducts({bool isFilteredByUser = false}) async {
+    final filteredByUser = isFilteredByUser ? 'orderBy="creatorId"&equalTo="$_userId"' : '';
     try {
-      final response = await Dio().get('$PRODUCTS_URI?auth=$_authToken');
+      final response = await Dio().get('$PRODUCTS_URI?auth=$_authToken&$filteredByUser');
       final products = response.data as Map<String, dynamic>?;
       final List<ProductModel> loadedProducts = [];
 
