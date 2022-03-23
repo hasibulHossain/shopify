@@ -97,7 +97,7 @@ class Product with ChangeNotifier {
 
   Future<void> addProduct(
       String title, String description, String imageUrl, double price) async {
-    const url = PRODUCTS_URI;
+    final url = '$PRODUCTS_URI?auth=$_authToken';
 
     final body = jsonEncode({
       'title': title,
@@ -135,7 +135,7 @@ class Product with ChangeNotifier {
 
     if (index != -1) {
       try {
-        await Dio().patch('$BASE_URL/products/$id.json', data: {
+        await Dio().patch('$BASE_URL/products/$id.json?auth=$_authToken', data: {
           'title': title,
           'description': description,
           'imageUrl': imageUrl,
@@ -167,7 +167,7 @@ class Product with ChangeNotifier {
     _products.removeAt(foundProdIndex);
     notifyListeners();
 
-    Dio().delete('$BASE_URL/products/$id.json').then((value) {
+    Dio().delete('$BASE_URL/products/$id.json?auth=$_authToken').then((value) {
       foundProd = null;
     }).catchError((err) {
       _products.insert(foundProdIndex, foundProd!);
