@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopify/screens/splashScreen/splash_screen.dart';
 
 import 'providers/cart/cart.dart';
 import 'providers/products/products.dart';
@@ -21,7 +22,6 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => Auth(),
         ),
-
         ChangeNotifierProxyProvider<Auth, Product>(
           create: (context) =>
               Product(Provider.of<Auth>(context, listen: false)),
@@ -29,14 +29,13 @@ void main() {
               previousProduct == null ? Product(auth) : previousProduct
                 ..update(auth),
         ),
-
         ChangeNotifierProxyProvider<Auth, Orders>(
-          create: (context) => Orders(Provider.of<Auth>(context, listen: false)),
+          create: (context) =>
+              Orders(Provider.of<Auth>(context, listen: false)),
           update: (_, auth, previousOrders) =>
               previousOrders == null ? Orders(auth) : previousOrders
                 ..update(auth),
         ),
-
         ChangeNotifierProvider(
           create: (_) => Cart(),
         ),
@@ -72,7 +71,15 @@ class MyApp extends StatelessWidget {
           ),
           primarySwatch: Colors.teal,
         ),
-        home: auth.isAuth ? const ProductsOverview() : const AuthScreen(),
+        home: auth.isAuth
+            ? const ProductsOverview()
+            : FutureBuilder(
+                future: auth.autoLogin(),
+                builder: (ctx, snapshot) =>
+                    snapshot.connectionState == ConnectionState.waiting
+                        ? const SplashScreen()
+                        : const AuthScreen(),
+            ),
         routes: {
           ProductDetails.route: (context) => const ProductDetails(),
           cartScreen.Cart.route: (context) => const cartScreen.Cart(),

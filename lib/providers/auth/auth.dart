@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopify/utils/constants.dart';
 
 class Auth with ChangeNotifier {
@@ -28,15 +30,25 @@ class Auth with ChangeNotifier {
     return _userId;
   }
 
-  void setCredential(String token, String userId, String expiryTimeInSec) {
+  void setCredential(String token, String userId, String expiryTimeInSec) async {
     int expiryDateInSeconds = int.parse(expiryTimeInSec);
 
     _token = token;
     _userId = userId;
     _expiryDate = DateTime.now().add(Duration(seconds: expiryDateInSeconds));
     _autoLogout();
-
     notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+
+    final userData = jsonEncode({
+      'token': _token,
+      'userId': _userId,
+      'expiryDate': _expiryDate!.toIso8601String(),
+    });
+
+    prefs.setString(USER_DATA, userData);
+
   }
 
   Future<void> signUp(String email, String password) async {
@@ -62,7 +74,7 @@ class Auth with ChangeNotifier {
     }
   }
 
-  void logout() {
+  Future<void> logout() async{
     _token = null;
     _expiryDate = null;
     _userId = null;
@@ -71,6 +83,9 @@ class Auth with ChangeNotifier {
       _logoutTimer!.cancel();
       _logoutTimer = null;
     }
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear(); // to clear everything from storage.
 
     notifyListeners();
   }
@@ -85,5 +100,28 @@ class Auth with ChangeNotifier {
     final timeToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
 
     _logoutTimer = Timer(Duration(seconds: timeToExpiry), logout);
+  }
+
+  Future<bool> autoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if(!prefs.containsKey(USER_DATA)) return false;
+
+    final extractedUserData = jsonDecode(prefs.getString(USER_DATA) as String) as Map<String, dynamic>;
+
+    final expiryDate = DateTime.parse(extractedUserData['expiryDate']);
+
+    final isTokenExpire = expiryDate.isBefore(DateTime.now());
+
+    if(isTokenExpire) return false;
+
+    // set credential to auto login.
+    _token = extractedUserData['token'];
+    _userId = extractedUserData['userId'];
+    _expiryDate = expiryDate;
+    _autoLogout();
+    notifyListeners();
+
+    return true;
   }
 }
