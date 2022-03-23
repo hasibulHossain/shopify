@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shopify/utils/constants.dart';
@@ -6,6 +8,7 @@ class Auth with ChangeNotifier {
   String? _token;
   DateTime? _expiryDate;
   String? _userId;
+  Timer? _logoutTimer;
 
   bool get isAuth {
     return token != null;
@@ -31,6 +34,7 @@ class Auth with ChangeNotifier {
     _token = token;
     _userId = userId;
     _expiryDate = DateTime.now().add(Duration(seconds: expiryDateInSeconds));
+    _autoLogout();
 
     notifyListeners();
   }
@@ -51,7 +55,7 @@ class Auth with ChangeNotifier {
         'returnSecureToken': true,
       });
 
-      setCredential(response.data['idToken'], response.data['localId'], '3600');
+      setCredential(response.data['idToken'], response.data['localId'], response.data['expiresIn']);
     } catch (err) {
       print(err);
       rethrow;
@@ -63,6 +67,23 @@ class Auth with ChangeNotifier {
     _expiryDate = null;
     _userId = null;
 
+    if(_logoutTimer != null) {
+      _logoutTimer!.cancel();
+      _logoutTimer = null;
+    }
+
     notifyListeners();
+  }
+
+  void _autoLogout() {
+    if(_logoutTimer != null) {
+      _logoutTimer!.cancel();
+    }
+
+    if(_expiryDate == null) return;
+
+    final timeToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
+
+    _logoutTimer = Timer(Duration(seconds: timeToExpiry), logout);
   }
 }
