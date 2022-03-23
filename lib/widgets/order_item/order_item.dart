@@ -35,8 +35,6 @@ class _OrderItemState extends State<OrderItem> {
                 _isExpand ? Icons.expand_less : Icons.expand_more,
               ),
               onPressed: () {
-                print('current isexpand state $_isExpand');
-
                 setState(() {
                   _isExpand = !_isExpand;
                 });

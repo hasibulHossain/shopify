@@ -28,7 +28,6 @@ class Auth with ChangeNotifier {
   void setCredential(String token, String userId, String expiryTimeInSec) {
     int expiryDateInSeconds = int.parse(expiryTimeInSec);
 
-    print('print after expiry date');
     _token = token;
     _userId = userId;
     _expiryDate = DateTime.now().add(Duration(seconds: expiryDateInSeconds));
@@ -53,10 +52,17 @@ class Auth with ChangeNotifier {
       });
 
       setCredential(response.data['idToken'], response.data['localId'], '3600');
-      print('auth response [auth.dart] ${response.data}');
     } catch (err) {
       print(err);
       rethrow;
     }
+  }
+
+  void logout() {
+    _token = null;
+    _expiryDate = null;
+    _userId = null;
+
+    notifyListeners();
   }
 }

@@ -32,8 +32,6 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('running from order build [order.dart]');
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('orders'),
@@ -41,8 +39,6 @@ class _OrderScreenState extends State<OrderScreen> {
       body: FutureBuilder(
         future: context.read<Orders>().fetchOrders(),
         builder: (context, dataSnapshot) {
-          print('from futurebuilder');
-          
           if (dataSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
