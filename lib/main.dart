@@ -15,6 +15,8 @@ import './screens/all_products/all_products.dart';
 import './screens/edit_product_screen/edit_product_screen.dart';
 import './screens/auth/auth.dart';
 
+import './helpers/custom_route.dart';
+
 void main() {
   runApp(
     MultiProvider(
@@ -70,6 +72,7 @@ class MyApp extends StatelessWidget {
             secondary: Colors.grey,
           ),
           primarySwatch: Colors.teal,
+          pageTransitionsTheme: PageTransitionsTheme(builders: {TargetPlatform.android: CustomPageTransitionBuilder(), TargetPlatform.iOS: CustomPageTransitionBuilder()})
         ),
         home: auth.isAuth
             ? const ProductsOverview()
