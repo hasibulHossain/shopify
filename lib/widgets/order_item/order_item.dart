@@ -41,9 +41,10 @@ class _OrderItemState extends State<OrderItem> {
               },
             ),
           ),
-          if (_isExpand)
-            Container(
-              height: 150,
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              height: _isExpand ? 150 : 0,
               child: ListView(
                 children: widget.products.map((e) => Text(e.title)).toList(),
               ),
