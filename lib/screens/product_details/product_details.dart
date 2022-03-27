@@ -24,9 +24,12 @@ class ProductDetails extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              child: Image.network(
-                product.imageUrl,
-                fit: BoxFit.cover,
+              child: Hero(
+                tag: product.id,
+                child: Image.network(
+                  product.imageUrl,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             Text(product.title),
