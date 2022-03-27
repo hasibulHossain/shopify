@@ -7,7 +7,7 @@ import 'package:shopify/providers/auth/auth.dart';
 enum AuthMode { Signup, Login }
 
 class AuthScreen extends StatelessWidget {
-  const AuthScreen({Key? key}): super(key: key);
+  const AuthScreen({Key? key}) : super(key: key);
 
   static const route = '/auth';
 
@@ -89,7 +89,7 @@ class AuthCard extends StatefulWidget {
   _AuthCardState createState() => _AuthCardState();
 }
 
-class _AuthCardState extends State<AuthCard> {
+class _AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   Map<String, String> _authData = {
@@ -130,17 +130,16 @@ class _AuthCardState extends State<AuthCard> {
         await context
             .read<Auth>()
             .signIn(_authData['email']!, _authData['password']!);
-        
       } catch (e) {
         _showErrDialog('Something went wrong!');
       }
     } else {
       // Sign user up
       try {
-      await context
-          .read<Auth>()
-          .signUp(_authData['email']!, _authData['password']!);
-      } catch(err) {
+        await context
+            .read<Auth>()
+            .signUp(_authData['email']!, _authData['password']!);
+      } catch (err) {
         _showErrDialog('Something went wrong!');
       }
     }
@@ -154,11 +153,39 @@ class _AuthCardState extends State<AuthCard> {
       setState(() {
         _authMode = AuthMode.Signup;
       });
+      _controller?.forward();
     } else {
       setState(() {
         _authMode = AuthMode.Login;
       });
+      _controller?.reverse();
     }
+  }
+
+  AnimationController? _controller;
+  Animation<Size>? _heightAnimation;
+  Animation<double>? _opacityAnimation;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(
+        milliseconds: 300,
+      ),
+    );
+
+    _heightAnimation = Tween<Size>(
+      begin: const Size(double.infinity, 260),
+      end: const Size(double.infinity, 320),
+    ).animate(
+      CurvedAnimation(parent: _controller!, curve: Curves.fastOutSlowIn),
+    );
+
+    _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller!, curve: Curves.easeIn));
   }
 
   @override
@@ -169,7 +196,9 @@ class _AuthCardState extends State<AuthCard> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         height: _authMode == AuthMode.Signup ? 320 : 260,
         constraints:
             BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
@@ -207,18 +236,21 @@ class _AuthCardState extends State<AuthCard> {
                   },
                 ),
                 if (_authMode == AuthMode.Signup)
-                  TextFormField(
-                    enabled: _authMode == AuthMode.Signup,
-                    decoration:
-                        const InputDecoration(labelText: 'Confirm Password'),
-                    obscureText: true,
-                    validator: _authMode == AuthMode.Signup
-                        ? (value) {
-                            if (value != _passwordController.text) {
-                              return 'Passwords do not match!';
+                  FadeTransition(
+                    opacity: _opacityAnimation!,
+                    child: TextFormField(
+                      enabled: _authMode == AuthMode.Signup,
+                      decoration:
+                          const InputDecoration(labelText: 'Confirm Password'),
+                      obscureText: true,
+                      validator: _authMode == AuthMode.Signup
+                          ? (value) {
+                              if (value != _passwordController.text) {
+                                return 'Passwords do not match!';
+                              }
                             }
-                          }
-                        : null,
+                          : null,
+                    ),
                   ),
                 const SizedBox(
                   height: 20,
